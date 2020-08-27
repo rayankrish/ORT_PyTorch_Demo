@@ -95,9 +95,11 @@ def train_ort_model(epoch=1):
     batch_size = 20
     initial_lr = 0.001
     
+    train_data, val_data, test_data = prepare_data(device, 20, 20)
     pt_model_path = os.path.join('pt_model.py')
     pt_model = _utils.import_module_from_file(pt_model_path)
     model = pt_model.TransformerModel(28785, 200, 2, 200, 2, 0.2).to(device)
+    
     model_desc = {'inputs':  [('input1', [bptt, batch_size]),
                               ('label', [bptt * batch_size])],
                   'outputs': [('loss', [], True),
@@ -105,7 +107,6 @@ def train_ort_model(epoch=1):
 
     opts = orttrainer.ORTTrainerOptions({'device' : {'id' : device}})
     optim_config = optim.SGDConfig(lr=initial_lr)
-    train_data, val_data, test_data = prepare_data(device, 20, 20)
     trainer = orttrainer.ORTTrainer(model, model_desc, optim_config, loss_fn=my_loss, options=opts)
 
     total_loss = 0.

@@ -100,10 +100,11 @@ def train_ort_model(epoch = 1):
     pt_model_path = os.path.join('pt_model.py')
     pt_model = _utils.import_module_from_file(pt_model_path)
     model = pt_model.TransformerModel(28785, 200, 2, 200, 2, 0.2).to(device)
+    
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=initial_lr)
 
-    model.train() # Turn on the train mode
+    model.train()
     total_loss = 0.
     start_time = time.time()
     for batch, i in enumerate(range(0, train_data.size(0) - 35, bptt)):
@@ -115,6 +116,7 @@ def train_ort_model(epoch = 1):
         torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
         optimizer.step()
         total_loss += loss.item()
+        
         log_interval = 200
         if batch % log_interval == 0 and batch > 0:
             cur_loss = total_loss / log_interval
